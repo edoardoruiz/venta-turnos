@@ -3,7 +3,7 @@
 require_once "config.php";
  
 // Define variables and initialize with empty values
-$DPI = $dpi = $primernombre = $segundonombre = $primerapellido = $segundoapellido = $idturno = $cantidad = $disponibilidad = $total = "";
+$DPI = $dpi = $primernombre = $segundonombre = $primerapellido = $segundoapellido = $idturno = $cantidad = $disponibilidad = $total = $idprecio = "";
 $DPI_err = $primernombre_err = $segundonombre_err = $primerapellido_err = $segundoapellido_err = $idturno_err = $cantidad_err = $fecha_err = "";
 $fecha = date('Y-m-d');
  
@@ -30,25 +30,18 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
 
     $input_papellido = trim($_POST["primerapellido"]);
     if(empty($input_papellido)){
-        $primerapellido_err = "Por favor ingresa un nombre.";
+        $primerapellido_err = "Por favor ingresa un apellido.";
     } elseif(!filter_var($input_papellido, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>"/^[a-zA-Z\s]+$/")))){
-        $primerapellido_err= "Por favor ingresa un nombre válido.";
+        $primerapellido_err= "Por favor ingresa un apellido válido.";
     } else{
         $primerapellido = $input_papellido;
     }
 
     $input_saepllido = trim($_POST["segundoapellido"]);
-    if(empty($input_saepllido)){
-        $segundoapellido_err = "Por favor ingresa un nombre.";
-    } elseif(!filter_var($input_saepllido, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>"/^[a-zA-Z\s]+$/")))){
-        $segundoapellido_err = "Por favor ingresa un nombre válido.";
-    } else{
-        $segundoapellido = $input_saepllido;
-    }
+    $segundoapellido = $input_saepllido;
     
-    $input_turno = trim($_POST["turno"]);
+    $input_turno = trim($_POST["Turno"]);
     $idturno = $id;
-
 
     $input_cantidad = trim($_POST["cantidad"]);
     if(empty($input_cantidad)){
@@ -61,7 +54,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
 
      
     // Check input errors before inserting in database
-    if(empty($name_err) && empty($address_err) && empty($salary_err)){
+    if(empty($primernombre_err) && empty($cantidad_err) && empty($primerapellido_err)){
         // Prepare an insert statement
         $sql = "INSERT INTO devoto (DPI, Primer_nombre, Segundo_Nombre, Primer_apellido, Segundo_apellido, ID_turno, Cantidad, Fecha_Compra) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
          
@@ -85,9 +78,10 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
             } else {
                 echo "Oops! Something went wrong. Please try again later.";
             }
+            
         }
 
-        if(empty($dpi_err) && empty($address_err) && empty($salary_err)){
+        if((empty($primernombre_err) && empty($cantidad_err) && empty($primerapellido_err))){
             
             // Prepare an update statement
             $sql = "UPDATE turno SET Disponibilidad = Disponibilidad - ? WHERE ID=?";
@@ -121,17 +115,14 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         $id =  trim($_GET["id"]);
         
         // Prepare a select statement
-        $sql = "SELECT * FROM turno WHERE id = ?";
-        if($stmt = mysqli_prepare($link, $sql)){
+        $sql = "SELECT * FROM turno WHERE ID = ?";
+        if($stmtget = mysqli_prepare($link, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "i", $param_id);
-            
-            // Set parameters
-            $param_id = $id;
+            mysqli_stmt_bind_param($stmtget, "i", $id);
             
             // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
-                $result = mysqli_stmt_get_result($stmt);
+            if(mysqli_stmt_execute($stmtget)){
+                $result = mysqli_stmt_get_result($stmtget);
     
                 if(mysqli_num_rows($result) == 1){
                     /* Fetch result row as an associative array. Since the result set
@@ -153,7 +144,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         }
         
         // Close statement
-        mysqli_stmt_close($stmt);
+        mysqli_stmt_close($stmtget);
         
         // Close connection
         mysqli_close($link);
@@ -185,7 +176,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                 <div class="col-md-12">
                     <h2 class="mt-5">Venta de Turno</h2>
                     <p>Por favor llena esta información para grabarlo dentro de la base de datos.</p>
-                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                    <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
                         <div class="form-group">
                             <label>DPI</label>
                             <input type="text" name="DPI" class="form-control <?php echo (!empty($DPI_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $DPI; ?>">

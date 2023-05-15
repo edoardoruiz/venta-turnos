@@ -16,12 +16,13 @@ include('inc/header.php');
                     <div class="mt-5 mb-3 clearfix">
                         <h2 class="pull-left">Devotos Inscritos</h2>
                     </div>
+                    <a href="plantilla.php" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Exportar a Excel</a>
                     <?php
                     // Include config file
                     require_once "config.php";
                     
                     // Attempt select query execution
-                    $sql = "SELECT devoto.ID, devoto.DPI, devoto.Fecha_compra, devoto.Primer_nombre, devoto.Primer_apellido, turno.Turno, devoto.Cantidad * turno.Precio as Total from devoto Inner join Turno on devoto.ID_turno = turno.ID;
+                    $sql = "SELECT devoto.ID, devoto.DPI, devoto.Fecha_compra, devoto.Primer_nombre, devoto.Primer_apellido, turno.Turno, devoto.Cantidad * turno.Precio as Total from devoto Inner join Turno on devoto.ID_turno = turno.ID order by ID desc;
                     ";
                     if($result = mysqli_query($link, $sql)){
                         if(mysqli_num_rows($result) > 0){
